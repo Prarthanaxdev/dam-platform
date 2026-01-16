@@ -1,0 +1,14 @@
+# Node
+node_modules
+dist
+npm-debug.log
+
+# Env
+.env
+
+# Docker
+**/node_modules
+
+# MinIO / Redis data
+minio-data
+redis-data
