@@ -13,7 +13,5 @@ export class MinioUploadRepository {
         ContentType: file.mimetype,
       }),
     );
-
-    console.log(`Uploaded to MinIO: ${objectKey}`);
   }
 }

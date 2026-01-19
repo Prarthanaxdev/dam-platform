@@ -5,13 +5,8 @@ services:
     build: ./backend
     ports:
       - "4000:4000"
-    environment:
-      PORT: 4000
-      MINIO_ENDPOINT: "http://minio:9000"
-      MINIO_PORT: 9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-      MINIO_BUCKET: images-videos
+    env_file:
+      - backend/.env
     depends_on:
       - minio
       - redis
@@ -43,6 +38,14 @@ services:
     image: redis:7
     ports:
       - "6379:6379"
+  worker:
+    build: ./backend
+    command: npm run start:worker
+    env_file:
+      - backend/.env
+    depends_on:
+      - redis
+      - minio
 
 volumes:
   minio-data:

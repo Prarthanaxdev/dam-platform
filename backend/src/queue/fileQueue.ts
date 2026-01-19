@@ -1,6 +1,6 @@
-import { Queue } from "bullmq";
-import { redisConnection } from "../config/redis.js";
+import { Queue } from 'bullmq';
+import { redisConnection } from '../config/redis';
 
-export const fileQueue = new Queue("file-processing", {
+export const fileQueue = new Queue('process-asset', {
   connection: redisConnection,
 });
