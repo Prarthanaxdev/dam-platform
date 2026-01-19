@@ -18,17 +18,15 @@ export const uploadFile = async (
 ): Promise<void> => {
   try {
     const files = req.files as Express.Multer.File[];
-    console.log("UploadFile controller called", files);
-    if (!files || files.length === 0) {
-      res.status(400).json({ error: 'No files uploaded' });
-      return;
+
+    const results = [];
+
+    for (const file of files) {
+      const result = await uploadAppService.upload(file);
+      results.push(result);
     }
 
-    const fileUploaded = await uploadAppService.processUpload(files);
-    res.status(201).json({
-      success: true,
-      message: 'File uploaded and validated',
-    });
+    res.status(201).json(results);
   } catch (error) {
     next(error);
   }

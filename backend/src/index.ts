@@ -8,7 +8,8 @@ import { config } from "./config/keys";
 import { errorHandler } from "./middleware/errorHandler";
 import { logger } from './config/logger';
 import morganMiddleware from './middleware/morganMiddleware';
-import { setupBullBoard } from './bullBoard/bullBoard.js';
+import { setupBullBoard } from './bullBoard/bullBoard';
+import connectDB from './config/db';
 
 dotenv.config();
 const app = express()
@@ -51,7 +52,7 @@ app.use('/admin/queues', bullBoardRouter);
 // Start server (connect to DB first)
 const startServer = async () => {
   try {
-    // await connectDB();
+    await connectDB();
     const PORT = config.PORT;
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
