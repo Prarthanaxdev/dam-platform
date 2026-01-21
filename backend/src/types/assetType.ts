@@ -4,9 +4,9 @@ export interface IAsset {
   assetId: string;
   rawKey: string;
   status: 'uploaded' | 'processing' | 'processed' | 'failed';
-  metadata?: Record<string, any>;
+  metadata?: { [key: string]: any };
   thumbnailKey?: string;
-  variants?: Record<string, any>;
+  variants?: { [key: string]: { key: string; contentType?: string } };
   error?: string;
   tags?: string[];
   createdAt?: Date;

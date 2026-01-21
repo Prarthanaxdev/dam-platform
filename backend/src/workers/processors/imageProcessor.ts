@@ -3,19 +3,18 @@ import { logger } from '../../config/logger';
 import { uploadToMinio, downloadFromMinio } from '../../repositories/minioHelpers';
 
 export async function processImage(data: any): Promise<{ metadata: any; thumbnailKey: string }> {
-  // Download the raw image from Minio
+  logger.info('Downloading raw image from Minio', { rawKey: data.rawKey });
   const buffer = await downloadFromMinio(data.rawKey);
   const image = sharp(buffer);
   const metadata = await image.metadata();
 
-  logger.info('Generating thumbnail');
-
+  logger.info('Generating image thumbnail', { assetId: data.assetId });
   const thumbnailBuffer = await image.resize(300).toBuffer();
   const thumbnailKey = `processed/uploads/${data.assetId}-thumbnail.jpg`;
-  // Save processed image to Minio
   await uploadToMinio(thumbnailKey, thumbnailBuffer, 'image/jpeg');
+  logger.info('Thumbnail uploaded to Minio', { thumbnailKey });
 
-  logger.info('Image processing done and saved to Minio');
+  logger.info('Image processing complete', { assetId: data.assetId });
 
   return {
     metadata: {
@@ -24,5 +23,5 @@ export async function processImage(data: any): Promise<{ metadata: any; thumbnai
       format: metadata.format,
     },
     thumbnailKey,
-  }
+  };
 }

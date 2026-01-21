@@ -1,17 +1,13 @@
-# Use Node 20
-FROM node:20
-
+# Build stage
+FROM node:20 AS builder
 WORKDIR /app
-
-# Copy package files and install
 COPY package*.json ./
 RUN npm install
-
-# Copy the rest of the code
 COPY . .
+RUN npm run build
 
-# Expose port
-EXPOSE 3000
-
-# Start Vite dev server
-CMD ["npm", "start"]
+# Production stage
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

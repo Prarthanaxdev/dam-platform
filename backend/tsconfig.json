@@ -8,6 +8,18 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "typeRoots": ["./src/types", "./node_modules/@types"]
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+    "baseUrl": "./src",
+    "paths": {
+      "@config/*": ["config/*"],
+      "@uploads/*": ["uploads/*"],
+      "@middleware/*": ["middleware/*"],
+      "@service/*": ["service/*"],
+      "@repositories/*": ["repositories/*"],
+      "@utils/*": ["utils/*"],
+      "@bullBoard/*": ["bullBoard/*"],
+      "@workers/*": ["workers/*"],
+      "@assets/*": ["assets/*"]
+    }
   }
 }
