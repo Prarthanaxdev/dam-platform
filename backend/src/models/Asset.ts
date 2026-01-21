@@ -5,8 +5,7 @@ const AssetSchema: Schema = new Schema<IAsset>(
   {
     assetId: {
       type: String,
-      required: true,
-      unique: true
+      required: true
     },
     rawKey: {
       type: String,

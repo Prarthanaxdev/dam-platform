@@ -1,6 +1,5 @@
-
 import { Request, Response, NextFunction } from "express";
-import { UploadApplicationService } from "../service/application/UploadApplicationService";
+import { UploadApplicationService } from "../service/application/uploadApplicationService";
 
 const uploadAppService = new UploadApplicationService();
 
@@ -18,14 +17,11 @@ export const uploadFile = async (
 ): Promise<void> => {
   try {
     const files = req.files as Express.Multer.File[];
-
     const results = [];
-
     for (const file of files) {
       const result = await uploadAppService.upload(file);
       results.push(result);
     }
-
     res.status(201).json(results);
   } catch (error) {
     next(error);

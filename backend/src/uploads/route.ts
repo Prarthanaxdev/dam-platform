@@ -6,5 +6,5 @@ export const router = Router();
 
 const upload = multer({ storage: multer.memoryStorage() }); // Use memory storage for MinIO
 
-router.post('/upload', upload.array('file', 10), uploadFile ); // Allow up to 10 files
+router.post('/', upload.array('file', 10), uploadFile ); // Allow up to 10 files
 export default router;

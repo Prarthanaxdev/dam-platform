@@ -21,6 +21,13 @@
   "devDependencies": {
     "@commitlint/cli": "^20.3.1",
     "@commitlint/config-conventional": "^20.3.1",
-    "husky": "^9.1.7"
+    "autoprefixer": "^10.4.23",
+    "husky": "^9.1.7",
+    "postcss": "^8.5.6",
+    "sass": "^1.97.2",
+    "tailwindcss": "^4.1.18"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0"
   }
 }

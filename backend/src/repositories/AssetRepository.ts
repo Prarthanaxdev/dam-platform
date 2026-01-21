@@ -1,3 +1,4 @@
+
 import AssetModel from '../models/Asset';
 
 /**
@@ -24,5 +25,17 @@ export class AssetRepository {
       },
       { new: true }
     ).exec();
+  }
+
+  static async findAssets(filters: any, skip: number, limit: number) {
+    return AssetModel.find(filters).skip(skip).limit(limit).sort({ createdAt: -1 });
+  }
+
+  static async countAssets(filters: any) {
+    return AssetModel.countDocuments(filters);
+  }
+
+  async findAssetById(assetId: string) {
+    return AssetModel.findOne({ assetId }).lean();
   }
 }
