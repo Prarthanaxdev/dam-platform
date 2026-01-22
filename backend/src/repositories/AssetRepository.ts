@@ -1,12 +1,16 @@
-
-import AssetModel from '../models/Asset';
+import AssetModel from '@models/Asset';
 
 /**
  * Asset Repository
  * Handles all database operations for Asset model
  */
 export class AssetRepository {
-  async createAssetRecord(assetData: { assetId: string; rawKey: string; status: string; tags?: string[] }) {
+  async createAssetRecord(assetData: {
+    assetId: string;
+    rawKey: string;
+    status: string;
+    tags?: string[];
+  }) {
     const asset = new AssetModel({
       assetId: assetData.assetId,
       rawKey: assetData.rawKey,
@@ -16,14 +20,24 @@ export class AssetRepository {
     return asset.save();
   }
 
-  async updateAssetStatus(assetId: string, status: string, updateData: Partial<{ metadata: any; thumbnailKey: string; variants: any; error: string; tags: string[] }>) {
+  async updateAssetStatus(
+    assetId: string,
+    status: string,
+    updateData: Partial<{
+      metadata: any;
+      thumbnailKey: string;
+      variants: any;
+      error: string;
+      tags: string[];
+    }>,
+  ) {
     return AssetModel.findOneAndUpdate(
       { assetId },
       {
         status,
         ...updateData,
       },
-      { new: true }
+      { new: true },
     ).exec();
   }
 

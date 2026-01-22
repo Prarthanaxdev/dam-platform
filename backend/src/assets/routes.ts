@@ -1,8 +1,16 @@
 import { Router } from 'express';
-import { getAssets, getAssetPreview } from './controller';
+import {
+  getAssets,
+  downloadAsset,
+  getTotalDownloadCount,
+  getAssetUsageAnalytics,
+} from './controller';
 
 export const router = Router();
 
 router.get('/assets', getAssets);
-router.get('/assets/:id/preview', getAssetPreview);
+router.get('/assets/analytics', getAssetUsageAnalytics);
+router.get('/assets/downloads', getTotalDownloadCount);
+router.get('/assets/:id/download', downloadAsset);
+
 export default router;
