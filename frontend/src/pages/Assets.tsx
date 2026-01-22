@@ -121,6 +121,7 @@ export default function Assets() {
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Tags</th>
               <th className="px-4 py-2 text-left">Status</th>
+              <th className="px-4 py-2 text-left">Downloads</th>
               <th className="px-4 py-2 text-left">Actions</th>
             </tr>
           </thead>
@@ -167,11 +168,15 @@ export default function Assets() {
                     <span className="text-gray-400 text-xs">Unknown</span>
                   )}
                 </td>
+                <td className="px-4 py-2 text-center">
+                  {asset.downloadCount ?? 0}
+                </td>
                 <td className="px-4 py-2 flex gap-2">
-                  <button
-                    title="Download"
+                  <a
+                    href={`${import.meta.env.VITE_API_BASE_URL || ''}/api/assets/${asset.assetId}/download`}
                     className="hover:bg-gray-100 p-1 rounded"
                     aria-label="Download"
+                    title="Download"
                   >
                     <img
                       width="24"
@@ -179,7 +184,7 @@ export default function Assets() {
                       src="https://img.icons8.com/material-outlined/24/download--v1.png"
                       alt="download"
                     />
-                  </button>
+                  </a>
                   {/* Preview logic for video with variants */}
                   {asset.variants ? (
                     <div className="flex gap-1">
