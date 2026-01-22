@@ -15,6 +15,7 @@ export interface Asset {
     [key: string]: string | { key: string; contentType?: string };
   };
   createdAt?: string;
+  downloadCount?: number;
 }
 
 // Fetch function for assets
