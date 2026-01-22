@@ -1,20 +1,20 @@
 import mongoose, { Schema } from 'mongoose';
-import { IAsset } from '../types/assetType';
+import { IAsset } from '@assets/../types/assetType';
 
 const AssetSchema: Schema = new Schema<IAsset>(
   {
     assetId: {
       type: String,
-      required: true
+      required: true,
     },
     rawKey: {
       type: String,
-      required: true
+      required: true,
     },
     status: {
       type: String,
       required: true,
-      enum: ['uploaded', 'processing', 'processed', 'failed']
+      enum: ['uploaded', 'processing', 'processed', 'failed'],
     },
     metadata: {
       type: Schema.Types.Mixed,
@@ -34,10 +34,14 @@ const AssetSchema: Schema = new Schema<IAsset>(
       type: [String],
       default: [],
     },
+    downloadCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Indexes for performance optimization

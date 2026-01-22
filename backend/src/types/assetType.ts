@@ -1,4 +1,4 @@
-import {Types} from 'mongoose';
+import { Types } from 'mongoose';
 
 export interface IAsset {
   assetId: string;
@@ -11,4 +11,5 @@ export interface IAsset {
   tags?: string[];
   createdAt?: Date;
   updatedAt?: Date;
+  downloadCount?: number;
 }

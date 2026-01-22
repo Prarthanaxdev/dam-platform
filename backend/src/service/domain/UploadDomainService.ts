@@ -1,4 +1,4 @@
-import { AssetRepository } from '../../repositories/AssetRepository';
+import { AssetRepository } from '@repositories/AssetRepository';
 export class UploadDomainService {
   private assetRepository: AssetRepository;
 

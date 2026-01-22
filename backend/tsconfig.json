@@ -19,7 +19,8 @@
       "@utils/*": ["utils/*"],
       "@bullBoard/*": ["bullBoard/*"],
       "@workers/*": ["workers/*"],
-      "@assets/*": ["assets/*"]
+      "@assets/*": ["assets/*"],
+      "@models/*": ["models/*"]
     }
   }
 }

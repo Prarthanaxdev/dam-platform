@@ -1,11 +1,7 @@
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { s3, MINIO_BUCKET } from '../config/minio';
+import { s3, MINIO_BUCKET } from '@config/minio';
 
-export async function uploadToMinio(
-  key: string,
-  body: Buffer,
-  contentType: string,
-) {
+export async function uploadToMinio(key: string, body: Buffer, contentType: string) {
   await s3.send(
     new PutObjectCommand({
       Bucket: MINIO_BUCKET,
