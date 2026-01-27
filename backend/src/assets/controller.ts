@@ -1,34 +1,7 @@
-/**
- * Get asset usage analytics: total downloads, uploads, and assets
- * @route GET /api/assets/analytics
- */
-export const getAssetUsageAnalytics = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
-  try {
-    const AssetModel = (await import('../models/Asset')).default;
-    // Total assets
-    const totalAssets = await AssetModel.countDocuments();
-    // Total downloads (sum of downloadCount)
-    const downloadAgg = await AssetModel.aggregate([
-      { $group: { _id: null, totalDownloads: { $sum: '$downloadCount' } } },
-    ]);
-    const totalDownloads = downloadAgg[0]?.totalDownloads || 0;
-    // Total uploads (count where status is 'uploaded' or 'processed')
-    const totalUploads = await AssetModel.countDocuments({
-      status: { $in: ['uploaded', 'processed'] },
-    });
-    res.json({ totalAssets, totalDownloads, totalUploads });
-  } catch (err) {
-    next(err);
-  }
-};
 import { Request, Response, NextFunction } from 'express';
 import { AssetApplicationService } from '@service/application/assetApplicationService';
 import { AssetRepository } from '@repositories/AssetRepository';
-// Removed direct minioHelpers import
+import archiver from 'archiver';
 
 const assetAppService = new AssetApplicationService();
 
@@ -64,8 +37,9 @@ export const getAssets = async (req: Request, res: Response, next: NextFunction)
 };
 
 /**
- * Download original asset file and increment download count
- * @route POST /api/assets/:id/download
+ * Download multiple assets and increment download count for each
+ * @route POST /api/assets/download
+ * @body { ids: string[] }
  */
 export const downloadAsset = async (
   req: Request,
@@ -73,17 +47,54 @@ export const downloadAsset = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { id } = req.params;
-    if (!id) {
-      res.status(400).json({ error: 'Missing asset id' });
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      res.status(400).json({ error: 'No asset IDs provided' });
       return;
     }
-    const assetId = Array.isArray(id) ? id[0] : id;
-    const { buffer, contentType, filename } = await assetAppService.downloadOriginal(assetId);
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send(buffer);
+    const AssetModel = (await import('../models/Asset')).default;
+    if (ids.length === 1) {
+      // Single file download: stream the file directly
+      try {
+        const { buffer, contentType, filename } = await assetAppService.downloadOriginal(ids[0]);
+        res.setHeader('Content-Type', contentType || 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        await AssetModel.updateOne({ assetId: ids[0] }, { $inc: { downloadCount: 1 } });
+        res.send(buffer);
+      } catch (err) {
+        console.error(`Failed to download asset ${ids[0]}:`, err);
+        res.status(404).json({ error: 'Asset not found or failed to download' });
+      }
+      return;
+    }
+    // Multiple files: zip
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', 'attachment; filename="assets.zip"');
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    archive.on('error', (err) => {
+      console.error('Archiver error:', err);
+      res.status(500).end('Failed to create zip');
+    });
+    archive.pipe(res);
+    let added = false;
+    for (const assetId of ids) {
+      try {
+        const { buffer, filename } = await assetAppService.downloadOriginal(assetId);
+        archive.append(buffer, { name: filename });
+        await AssetModel.updateOne({ assetId }, { $inc: { downloadCount: 1 } });
+        added = true;
+      } catch (err) {
+        console.error(`Failed to add asset ${assetId} to zip:`, err);
+      }
+    }
+    archive.finalize();
+    if (!added) {
+      archive.on('end', () => {
+        res.status(404).end('No valid assets to download');
+      });
+    }
   } catch (err) {
+    console.error('Error in downloadAsset:', err);
     next(err);
   }
 };
@@ -108,6 +119,97 @@ export const getTotalDownloadCount = async (
     ]);
     const totalDownloads = result[0]?.totalDownloads || 0;
     res.json({ totalDownloads });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Bulk delete assets by IDs
+ * @route POST /api/assets/bulk-delete
+ * @body { ids: string[] }
+ */
+export const bulkDeleteAssets = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      res.status(400).json({ error: 'No asset IDs provided' });
+      return;
+    }
+    const AssetModel = (await import('../models/Asset')).default;
+    const result = await AssetModel.deleteMany({ assetId: { $in: ids } });
+    res.json({ deletedCount: result.deletedCount });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get asset usage analytics: total downloads, uploads, and assets
+ * @route GET /api/assets/analytics
+ */
+export const getAssetUsageAnalytics = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const AssetModel = (await import('../models/Asset')).default;
+    // Total assets
+    const totalAssets = await AssetModel.countDocuments();
+    // Total downloads (sum of downloadCount)
+    const downloadAgg = await AssetModel.aggregate([
+      { $group: { _id: null, totalDownloads: { $sum: '$downloadCount' } } },
+    ]);
+    const totalDownloads = downloadAgg[0]?.totalDownloads || 0;
+    // Total uploads (count where status is 'uploaded' or 'processed')
+    const totalUploads = await AssetModel.countDocuments({
+      status: { $in: ['uploaded', 'processed'] },
+    });
+    res.json({ totalAssets, totalDownloads, totalUploads });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ * @returns Breakdown of assets by type
+ */
+export const getAssetTypeBreakdown = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const breakdown = await AssetRepository.getTypeBreakdown();
+    res.json(breakdown);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ *  * @param req
+ *  @param res
+ * @param next
+ * @returns Breakdown of assets by creation date
+ */
+export const getAssetDateBreakdown = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const breakdown = await AssetRepository.getDateBreakdown();
+    res.json(breakdown);
   } catch (err) {
     next(err);
   }

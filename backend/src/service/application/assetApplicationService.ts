@@ -18,8 +18,19 @@ export class AssetApplicationService {
     const metadata = (
       asset.metadata && typeof asset.metadata === 'object' ? asset.metadata : {}
     ) as any;
-    const contentType =
-      typeof metadata.mimetype === 'string' ? metadata.mimetype : 'application/octet-stream';
+    let contentType = 'application/octet-stream';
+    if (typeof metadata.mimetype === 'string') {
+      contentType = metadata.mimetype;
+    } else if (typeof metadata.format === 'string') {
+      // Map common formats to MIME types
+      const format = metadata.format.toLowerCase();
+      if (format === 'jpeg' || format === 'jpg') contentType = 'image/jpeg';
+      else if (format === 'png') contentType = 'image/png';
+      else if (format === 'gif') contentType = 'image/gif';
+      else if (format === 'webp') contentType = 'image/webp';
+      else if (format === 'bmp') contentType = 'image/bmp';
+      else if (format === 'tiff' || format === 'tif') contentType = 'image/tiff';
+    }
     const filename =
       typeof metadata.originalname === 'string' ? metadata.originalname : asset.rawKey;
     return { buffer, contentType, filename };
