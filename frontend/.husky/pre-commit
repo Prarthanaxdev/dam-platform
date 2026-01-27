@@ -1,0 +1,8 @@
+#!/bin/sh
+# Simple pre-commit hook to run ESLint
+npm run lint
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+  echo "ESLint failed. Please fix the errors before committing."
+  exit 1
+fi
