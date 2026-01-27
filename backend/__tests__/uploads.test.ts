@@ -1,3 +1,6 @@
+// @ts-nocheck
+/// <reference types="jest" />
+import { jest } from '@jest/globals';
 process.env.MINIO_ACCESS_KEY = 'test-access-key';
 process.env.MINIO_SECRET_KEY = 'test-secret-key';
 import request from 'supertest';
