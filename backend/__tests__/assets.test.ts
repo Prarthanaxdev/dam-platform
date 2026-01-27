@@ -1,3 +1,7 @@
+// @ts-nocheck
+/// <reference types="jest" />
+import { jest } from '@jest/globals';
+jest.setTimeout(20000); // 20 seconds for all tests in this file
 jest.setTimeout(20000); // 20 seconds for all tests in this file
 process.env.MINIO_ACCESS_KEY = 'test-access-key';
 process.env.MINIO_SECRET_KEY = 'test-secret-key';
