@@ -71,8 +71,8 @@ npm run dev
 
 ```mermaid
 flowchart LR
-    A[Frontend (React/Vite)] -- API Calls --> B[Backend (Node.js/Express)]
-    B -- REST API --> A
-    B -- DB Queries --> C[(Database)]
-    C -- Data --> B
+    A[Frontend (React/Vite)] -- "API Calls" --> B[Backend (Node.js/Express)]
+    B -- "REST API" --> A
+    B -- "DB Queries" --> C[(Database)]
+    C -- "Data" --> B
 ```
