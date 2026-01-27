@@ -1,9 +1,9 @@
 // Business logic related to file uploads
-import { UploadDomainService } from "../domain/uploadDomainService";
-import { fileQueue } from "../../queue/fileQueue";
+import { UploadDomainService } from '../domain/uploadDomainService';
+import { fileQueue } from '../../queue/fileQueue';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../../config/logger';
-import { uploadToMinio } from "../../repositories/minioHelpers";
+import { uploadToMinio } from '../../repositories/minioHelpers';
 export class UploadApplicationService {
   private uploadDomainService: UploadDomainService;
 
@@ -34,7 +34,7 @@ export class UploadApplicationService {
         finalTags.push(extMatch[1].toLowerCase());
       }
       // Add words from filename (excluding extension, split by non-word chars)
-      const baseName = file.originalname.replace(/\.[^/.]+$/, "");
+      const baseName = file.originalname.replace(/\.[^/.]+$/, '');
       finalTags.push(...baseName.split(/\W+/).filter(Boolean));
     }
 
@@ -44,6 +44,10 @@ export class UploadApplicationService {
       rawKey,
       status: 'uploaded',
       tags: finalTags,
+      metadata: {
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+      },
     });
 
     // Step 3. Push job to BullMQ

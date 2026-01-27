@@ -6,7 +6,7 @@ export class UploadDomainService {
     this.assetRepository = new AssetRepository();
   }
 
-  async createAsset(assetData: { assetId: string; rawKey: string; status: string; tags?: string[] }) {
+  async createAsset(assetData: { assetId: string; rawKey: string; status: string; tags?: string[]; metadata?: any }) {
     return this.assetRepository.createAssetRecord(assetData);
   }
 }
