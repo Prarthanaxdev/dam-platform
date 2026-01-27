@@ -76,5 +76,3 @@ flowchart LR
     B -- DB Queries --> C[(Database)]
     C -- Data --> B
 ```
-
-
