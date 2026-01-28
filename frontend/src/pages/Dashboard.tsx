@@ -117,7 +117,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          <div className="mb-12" style={{ marginLeft: '60px' }}>
+          <div className="mb-12" style={{ marginLeft: '11px' }}>
             <h3 className="text-lg font-semibold mb-2">Asset Analytics</h3>
             <div className="flex flex-wrap gap-8">
               <div
