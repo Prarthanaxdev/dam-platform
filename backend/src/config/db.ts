@@ -15,12 +15,7 @@ const connectDB = async (): Promise<void> => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error(`Error connecting to MongoDB: ${errorMessage}`);
-    // Don't exit process in serverless - just log the error
-    if (process.env.VERCEL) {
-      console.error('MongoDB connection failed in serverless environment');
-    } else {
-      process.exit(1);
-    }
+    process.exit(1);
     throw error;
   }
 };
