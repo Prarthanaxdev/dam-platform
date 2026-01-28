@@ -18,10 +18,18 @@ export interface Asset {
   downloadCount?: number;
 }
 
-// Fetch function for assets
-export const fetchAssets = async (): Promise<Asset[]> => {
-  const res = await fetch(`${config.apiBaseUrl}/api/assets`);
+// Paginated response type
+export interface PaginatedAssets {
+  assets: Asset[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+// Fetch function for paginated assets
+export const fetchAssets = async (page = 1, limit = 20): Promise<PaginatedAssets> => {
+  const res = await fetch(`${config.apiBaseUrl}/api/assets?page=${page}&limit=${limit}`);
   if (!res.ok) throw new Error('Failed to fetch assets');
-  const data = await res.json();
-  return data.assets;
+  return res.json();
 };

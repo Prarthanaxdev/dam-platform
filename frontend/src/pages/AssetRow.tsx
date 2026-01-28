@@ -8,13 +8,14 @@ interface AssetRowProps {
   onSelect: (id: string) => void;
   onPreview: (asset: Asset, variantKey?: string) => void;
   onDownload?: (asset: Asset) => void;
+  style?: React.CSSProperties; // <-- add style prop for virtualization
 }
 
 const AssetRow: React.FC<AssetRowProps> = React.memo(
-  ({ asset, selected, onSelect, onPreview, onDownload }) => {
+  ({ asset, selected, onSelect, onPreview, onDownload, style }) => {
     const id = asset.assetId || asset.id || '';
     return (
-      <tr key={id} className="border-t hover:bg-gray-50 transition group">
+      <tr key={id} className="border-t hover:bg-gray-50 transition group" style={style}>
         <td className="px-3 py-3 align-middle text-center">
           <input
             type="checkbox"
@@ -152,7 +153,7 @@ const AssetRow: React.FC<AssetRowProps> = React.memo(
         </td>
       </tr>
     );
-  }
+  },
 );
 
 export default AssetRow;

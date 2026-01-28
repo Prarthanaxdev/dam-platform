@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { fetchAssets } from '../api/getAssets';
+import type { PaginatedAssets } from '../api/getAssets';
 import { getThumbnailUrl } from '../utils/minio';
 import type { Asset } from '../api/getAssets';
 import { downloadAssets } from '../api/downloadAssets';
@@ -12,19 +13,18 @@ export default function Assets() {
   const [typeFilter, setTypeFilter] = useState('');
   const [tagFilter, setTagFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
-  // Multiselect state
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(5);
 
-  const {
-    data: assets = [],
-    isLoading,
-    isError,
-    refetch,
-    isFetching,
-  } = useQuery<Asset[]>({
-    queryKey: ['assets'],
-    queryFn: fetchAssets,
+  const { data, isLoading, isError, refetch, isFetching } = useQuery<PaginatedAssets, Error>({
+    queryKey: ['assets', page, limit],
+    queryFn: () => fetchAssets(page, limit),
   });
+
+  const assets = data?.assets || [];
+  const totalPages = data?.totalPages || 1;
+  const total = data?.total || 0;
 
   // React Query mutation for bulk download
   const downloadMutation = useMutation({
@@ -118,7 +118,6 @@ export default function Assets() {
         </div>
       )}
 
-      {/* Main content wrapped in a parent div to fix JSX error */}
       <div>
         <div className="flex items-center justify-between">
           <div>
@@ -191,37 +190,74 @@ export default function Assets() {
         {isLoading && <div>Loading...</div>}
         {isError && <div className="text-red-500">Failed to load assets.</div>}
         {!isLoading && !isError && (
-          <table className="min-w-full bg-white rounded shadow">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 text-left">
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    onChange={handleSelectAll}
-                    aria-label="Select all"
+          <>
+            <table className="min-w-full bg-white rounded shadow">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 text-left">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={handleSelectAll}
+                      aria-label="Select all"
+                    />
+                  </th>
+                  <th className="px-4 py-2 text-left">Thumbnail</th>
+                  <th className="px-4 py-2 text-left">Name</th>
+                  <th className="px-4 py-2 text-left">Tags</th>
+                  <th className="px-4 py-2 text-left">Status</th>
+                  <th className="px-4 py-2 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAssets.map((asset) => (
+                  <AssetRow
+                    key={asset.assetId || asset.id}
+                    asset={asset}
+                    selected={selectedAssets.includes(asset.assetId || asset.id || '')}
+                    onSelect={handleSelectOne}
+                    onPreview={handlePreview}
+                    onDownload={(a) => downloadAssets([a.assetId || a.id || ''])}
                   />
-                </th>
-                <th className="px-4 py-2 text-left">Thumbnail</th>
-                <th className="px-4 py-2 text-left">Name</th>
-                <th className="px-4 py-2 text-left">Tags</th>
-                <th className="px-4 py-2 text-left">Status</th>
-                <th className="px-4 py-2 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAssets.map((asset) => (
-                <AssetRow
-                  key={asset.assetId || asset.id}
-                  asset={asset}
-                  selected={selectedAssets.includes(asset.assetId || asset.id || '')}
-                  onSelect={handleSelectOne}
-                  onPreview={handlePreview}
-                  onDownload={(a) => downloadAssets([a.assetId || a.id || ''])}
-                />
-              ))}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+            {/* Pagination controls */}
+            <div className="flex justify-center items-center gap-2 mt-4">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <span>
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              >
+                Next
+              </button>
+              <span className="ml-4">Total: {total}</span>
+              <select
+                value={limit}
+                onChange={(e) => {
+                  setLimit(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="ml-2 border rounded px-2 py-1"
+              >
+                {[5, 10, 15, 15].map((n) => (
+                  <option key={n} value={n}>
+                    {n} / page
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
         )}
       </div>
     </div>
