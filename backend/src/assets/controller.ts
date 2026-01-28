@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AssetApplicationService } from '@service/application/assetApplicationService';
 import { AssetRepository } from '@repositories/AssetRepository';
 import archiver from 'archiver';
+import AssetModel from '../models/Asset';
 
 const assetAppService = new AssetApplicationService();
 
@@ -52,7 +53,6 @@ export const downloadAsset = async (
       res.status(400).json({ error: 'No asset IDs provided' });
       return;
     }
-    const AssetModel = (await import('../models/Asset')).default;
     if (ids.length === 1) {
       // Single file download: stream the file directly
       try {
@@ -113,7 +113,6 @@ export const getTotalDownloadCount = async (
 ): Promise<void> => {
   try {
     // Aggregate total downloadCount from all assets
-    const AssetModel = (await import('../models/Asset')).default;
     const result = await AssetModel.aggregate([
       { $group: { _id: null, totalDownloads: { $sum: '$downloadCount' } } },
     ]);
@@ -140,7 +139,6 @@ export const bulkDeleteAssets = async (
       res.status(400).json({ error: 'No asset IDs provided' });
       return;
     }
-    const AssetModel = (await import('../models/Asset')).default;
     const result = await AssetModel.deleteMany({ assetId: { $in: ids } });
     res.json({ deletedCount: result.deletedCount });
   } catch (err) {
@@ -158,7 +156,6 @@ export const getAssetUsageAnalytics = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const AssetModel = (await import('../models/Asset')).default;
     // Total assets
     const totalAssets = await AssetModel.countDocuments();
     // Total downloads (sum of downloadCount)
@@ -197,8 +194,8 @@ export const getAssetTypeBreakdown = async (
 };
 
 /**
- *  * @param req
- *  @param res
+ * @param req
+ * @param res
  * @param next
  * @returns Breakdown of assets by creation date
  */

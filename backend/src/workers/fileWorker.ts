@@ -12,7 +12,6 @@ import connectDB from '@config/db';
 // Connect to MongoDB before starting the worker
 connectDB();
 
-// Extract processor function for reuse
 const fileProcessor = async (job: any) => {
   logger.info('--- Asset Processing Job Started ---', {
     jobId: job.id,

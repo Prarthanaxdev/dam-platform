@@ -12,3 +12,7 @@ npm-debug.log
 # MinIO / Redis data
 minio-data
 redis-data
+
+logs/
+*.log
+backend/logs/
